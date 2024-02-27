@@ -2,6 +2,7 @@
 
 import dotenv from "dotenv";
 import connectDB from "./db/index.js";
+import {app} from "./app.js"
 
 // below files were imported when connecting db in index file
 // import mongoose from "mongoose";
