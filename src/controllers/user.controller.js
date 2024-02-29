@@ -16,9 +16,9 @@ const registerUser = asyncHandler(async (req, res) => {
   // return response
 
   const { username, email, fullname, password } = req.body;
-  console.log("username", username);
+  //   console.log("username", username);
 
-  // this mtd can be used fro all fields but it is repetitive task
+  // this mtd can be used for all fields but it is repetitive task
   // if(username === "") {
   //     throw new ApiError(400, "Username is required");
   // }
@@ -34,7 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //   User.findOne({username}) --> also correct
 
   // now it will return first user whose email or username matches
-  const existedUser = User.findOne({
+  const existedUser = await User.findOne({
     $or: [{ username }, { email }],
   });
 
@@ -42,11 +42,22 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User with same email or username already exists");
   }
 
+  console.log(req.files);
   // multer gives access to req.files
   const avatarLocalPath = req.files?.avatar[0]?.path;
   // we require 1st object of avatar and then its path
 
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  //   const coverImageLocalPath = req.files?.coverImage[0]?.path;
+
+  // made this to check for coverImage file path
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar is required");
@@ -78,7 +89,9 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Something went wrong while regestring the user");
   }
 
-  return res.status(200).json(new ApiResponse(201, createdUser, "User Registered Successfully"));
+  return res
+    .status(201)
+    .json(new ApiResponse(200, createdUser, "User Registered Successfully"));
 });
 
 export { registerUser };
